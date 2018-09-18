@@ -22,14 +22,11 @@
         <el-table-column property="rolename" :label="$t('user.model.role')" min-width="90"></el-table-column>
         <el-table-column property="mobileTel" :label="$t('user.model.mobileTel')" min-width="90"></el-table-column>
         <el-table-column property="companyName" :label="$t('user.model.companyName')" min-width="120"></el-table-column>
-        <el-table-column property="companyID" :label="$t('user.model.companyID')" min-width="90"></el-table-column>
+        <el-table-column property="weixin_openid" :label="$t('user.model.weixin_openid')" min-width="90"></el-table-column>
         <el-table-column :label="$t('operation.operation')" align="center" width="200">
           <template slot-scope="scope">
             <el-button type="danger" size="mini" icon="el-icon-delete"  @click.native="deleteUser(scope.row)"></el-button>
             <el-button type="primary" size="mini" icon="el-icon-edit" @click.native="modifyUser(scope.row)"></el-button>
-            <el-tooltip content="关联企业" placement="top">
-              <el-button type="success" size="mini" icon="el-icon-circle-plus" @click.native="addSubCompanys(scope)"></el-button>
-            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -70,9 +67,9 @@
         <el-form-item :label="$t('user.model.tel')" prop="tel">
           <el-input v-model="form.tel" class="inputhalf"  @keypress.native="onlyTelNumber" ></el-input>
         </el-form-item>
-        <el-form-item :label="$t('user.model.head_img_url')" prop="head_img_url">
-          <el-card v-if="form.head_img_url" style="width: 271px;line-height: 0" :body-style="{ padding: '0px' }">
-            <img  :src="form.head_img_url" style="width:100%; height: 100%" @click="handleIconClick('head')"/>
+        <el-form-item :label="$t('user.model.avatar')" prop="avatar">
+          <el-card v-if="form.avatar" style="width: 128px;height:128px;line-height: 0" :body-style="{ padding: '0px' }">
+            <img  :src="form.avatar" style="width: 128px;height:128px;" @click="handleIconClick('head')"/>
           </el-card>
           <el-button v-else type="primary" icon="el-icon-picture" @click="handleIconClick('head')"></el-button>
         </el-form-item>
@@ -109,16 +106,6 @@
     <el-dialog :title="$t('user.create.selectImage')" :visible.sync="imageFormVisible" @close="cancelImageForm">
       <img-upload :selectFlag="selectFlag" :previewFlag="previewFlag" @onimgselect="imgSelect"></img-upload>
     </el-dialog>
-    <el-dialog :title="$t('user.create.addSubCompanys')" :visible.sync="subFormVisible" @close="cancelSubForm">
-        <el-transfer filterable filter-placeholder="请输入企业名称" :titles="['未关联的企业', '已关联的企业']"
-          v-model="subCompanys"
-          :data="subCompanyList">
-        </el-transfer>   
-        <span slot="footer" class="dialog-footer">
-          <el-button @click.native="subFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click.native="saveSubCompanys">确 定</el-button>
-        </span>          
-    </el-dialog>
   </content-module>
 </template>
 <script>
@@ -139,11 +126,15 @@ export default {
       }
     }
     var validateMobileTel = (rule, value, callback) => {
-        const myreg = /^(((13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1})|(17[0-9]{1}))+\d{8})$/
-      if (!myreg.test(value)) {
-        callback(new Error('请输入正确的手机号'))
-      } else {
+      if (!value) {
         callback()
+      } else {
+        const myreg = /^(((13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1})|(17[0-9]{1})|(16[0-9]{1}))+\d{8})$/
+        if (!myreg.test(value)) {
+          callback(new Error('请输入正确的手机号'))
+        } else {
+          callback()
+        }
       }
     }
     return {
@@ -158,9 +149,9 @@ export default {
         email: '',
         mobileTel: '',
         tel:'',
-        head_img_url: '',
+        avatar: '',
         companyName: '',
-        companyID: '',
+        weixin_openid: '',
         address: '',
         longitude: 0, //  经度
         latitude: 0   //  纬度
@@ -179,8 +170,6 @@ export default {
       location: '',
       rules: {
         mobileTel: [{
-          required: true, message: this.$t('user.rules.mobileTel'), trigger: 'blur'
-        }, {
           validator: validateMobileTel, trigger: 'blur'
         }],
         password: [{
@@ -193,18 +182,6 @@ export default {
           required: true, message: this.$t('user.rules.repassword'), trigger: 'blur'
         }, {
           validator: validatePasswd, trigger: 'blur'
-        }],
-        username: [{
-          required: true, message: this.$t('user.rules.username'), trigger: 'blur'
-        }],
-        tel: [{
-          required: true, message: this.$t('user.rules.tel'), trigger: 'blur'
-        }],
-        companyName: [{
-          required: true, message: this.$t('user.rules.companyName'), trigger: 'blur'
-        }],
-        address: [{
-          required: true, message: this.$t('user.rules.address'), trigger: 'blur'
         }]
       },
       formVisible: false,
@@ -215,28 +192,25 @@ export default {
           label: '超级管理员'
         },
         {
-          value: 'gov',
-          label: '政府'
+          value: 'user',
+          label: '注册用户'
         },
         {
-          value: 'company',
-          label: '企业'
+          value: 'guest',
+          label: '一般用户'
         }
       ],
       rolename: {
           admin: '超级管理员',
-          gov: '政府',
-          company: '企业'
+          user: '注册用户',
+          guest: '一般用户'
       },
       searchData: '',
       searchIndex: '',
       imageFormVisible: false,
       previewFlag: false,
       selectFlag: true,
-      uploadImgName: '',
-      subFormVisible: false,
-      subCompanys:[],
-      subCompanyList:[]
+      uploadImgName: ''
     }
   },
   components: {
@@ -270,10 +244,8 @@ export default {
       delete (this.form._id)
     },
     searchUsers () {
-      if (this.searchIndex === 'name') {
-        this.search = { name : this.searchData }
-      } else if (this.searchIndex === 'username') {
-        this.search = { username : this.searchData }
+      if (this.searchData) {
+        this.search = { vaule: this.searchData }
       } else {
         this.search = {}
       }
@@ -336,9 +308,9 @@ export default {
         })
       }).catch(() => {})
     },
-    imgSelect (url) {
+    imgSelect ({url}) {
       if (this.uploadImgName === 'head') {
-        this.form.head_img_url = url
+        this.form.avatar = url
       } 
       this.cancelImageForm()
     },
@@ -372,57 +344,6 @@ export default {
       this.zoom = 15
       this.BMap = BMap
       this.map = map
-    },
-    addSubCompanys (scope) {
-      this.subFormVisible = true
-      const index = scope.$index
-      const user = this.users[index]
-      this.form._id = user._id
-      this.getAllCompanys(user)
-    },
-    cancelSubForm () {
-      this.subCompanys = []
-      this.subCompanyList = []
-      this.subFormVisible = false
-    },
-    saveSubCompanys() {
-      const mySubCompanys = this.subCompanys
-      userRes.updateCompanys({ id: this.form._id }, mySubCompanys).then( res => {
-            this.cancelSubForm()
-            this.$message({
-              type: 'success',
-              message: '关联企业成功'
-            })
-            this.fetch()
-          }).catch((err) => {
-            this.$message({
-              type: 'error',
-              message: '关联企业失败'
-            })
-          })
-    },
-    getAllCompanys(user) {
-      this.subCompanys = []
-      this.subCompanyList = []
-      const companys = user.subCompanys
-      userRes.getCompanys().then( (res) => {
-        if (!res.data || res.data.length === 0) {
-          console.log('未获取到企业列表')
-          return
-        }
-        res.data.forEach(element => {
-             const companyItem = { label: element.companyName, key: element.companyID }
-             for (const n in companys) {
-               if (companys[n] === companyItem.key) {
-                 this.subCompanys.push(companyItem.key)
-                 break;
-               }
-             }
-             if (companyItem.key !== user.companyID) {
-               this.subCompanyList.push(companyItem)
-             }
-        });
-      })
     }
   },
   computed: {

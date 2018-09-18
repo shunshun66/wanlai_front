@@ -6,7 +6,7 @@
         <el-dropdown trigger="click">
           <span class="el-dropdown-link">
             <span class="iconfont icon-user" style="margin-right:2px;vertical-align:middle;"></span>
-            <img :src="userinfos.head_img_url" class="user-avatar" v-if="userinfos.head_img_url">
+            <img :src="userinfos.avatar" class="user-avatar" v-if="userinfos.avatar">
             <template v-else>
               {{username}}
               <i class="el-icon-caret-bottom el-icon-right"></i>
@@ -80,18 +80,12 @@
           <el-form-item label="联系电话" prop="tel">
             <el-input v-model="userinf.form.tel" class="inputhalf"></el-input>
           </el-form-item>
-          <el-form-item label="用户头像" prop="head_img_url">
-            <el-card v-if="userinf.form.head_img_url" style="width: 271px;line-height: 0" :body-style="{ padding: '0px' }">
-              <img  :src="userinf.form.head_img_url" style="width:100%; height: 100%" @click="handleIconClick('head')"></img>
+          <el-form-item label="用户头像" prop="avatar">
+            <el-card v-if="userinf.form.avatar" style="width: 128px;height:128px;line-height: 0" :body-style="{ padding: '0px' }">
+              <img  :src="userinf.form.avatar" style="width: 128px;height:128px;" @click="handleIconClick('head')"></img>
             </el-card>
-            <el-button v-else type="primary" icon="picture" @click="handleIconClick('head')"></el-button>
+            <el-button v-else type="primary" icon="el-icon-picture" @click="handleIconClick('head')"></el-button>
           </el-form-item>
-          <el-form-item label="二维码图片" prop="qrImg">
-            <el-card v-if="userinf.form.qrImg" style="width: 271px;line-height: 0" :body-style="{ padding: '0px' }">
-              <img  :src="userinf.form.qrImg" style="width:100%; height: 100%" @click="handleIconClick('qr')"></img>
-            </el-card>
-            <el-button v-else type="primary" icon="picture" @click="handleIconClick('qr')"></el-button>
-          </el-form-item>            
         </el-form>
         <span slot="footer" class="dialog-footer">
         <el-button @click.native="userinf.visible=false">{{$t('confirm.cancel')}}</el-button>
@@ -158,8 +152,7 @@ export default {
           name: '',
           email: '',
           tel: '',
-          head_img_url: '',
-          qrImg: '' // 二维码图片
+          avatar: ''
         },
         rules: { },
         uploadUrl: '/api/users/imgupload/'
@@ -258,12 +251,8 @@ export default {
       Object.assign(this.userinf.form, this.userinfos)
       this.userinf.visible = true
     },
-    imgSelect (url) {
-      if (this.uploadImgName === 'head') {
-        this.userinf.form.head_img_url = url
-      } else {
-        this.userinf.form.qrImg = url
-      }
+    imgSelect ({url}) {
+      this.userinf.form.avatar = url
       this.cancelImageForm()
     },
     handleIconClick (ev) {
@@ -330,6 +319,7 @@ export default {
   .user-avatar
      margin-left: 10px;
      width: 50px;
+     height: 50px;
      border-radius: 50%;
      vertical-align: bottom;
 </style>

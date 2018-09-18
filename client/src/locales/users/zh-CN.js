@@ -13,10 +13,10 @@ export default {
       email: '电子邮箱',
       mobileTel: '手机号码',
       tel: '联系电话',
-      head_img_url: '头像',
+      avatar: '头像',
       companyName: '企业名称',
       address: '企业地址',
-      companyID: '企业编号',
+      weixin_openid: '微信ID',
       subCompanys: '子企业'
     },
     create: {

@@ -1,5 +1,5 @@
 export default {
-  title: '农业大数据中心',
+  title: '往来管理系统',
   constant: {
     name: '名称',
     desc: '描述'

@@ -17,7 +17,6 @@
     </el-form>
     <div class="lang">
       <el-button @click.native="forgetPwd" type="text">忘记密码</el-button>
-      <el-button @click.native="downPrintdrive" type="text">下载打印驱动</el-button>
     </div>
     <div style="position: absolute; height:260px; left:0; width:100%; background-color: #323232; bottom: 0px;border-top:5px solid #e1472f;overflow:hidden; clear: both; background:#323232;color:#969595;padding-top:40px; margin: 0 auto;">
       <div style="height:100%; width: 80%; margin-left: 20%;">
@@ -276,7 +275,7 @@ $input-width = 15rem
   ol, ul
     list-style: none
   .footer-logo
-    background url(../../assets/images/logo_tea.png) no-repeat scroll 0px 0
+    background url(../../assets/images/logo.png) no-repeat scroll 0px 0
     width 250px
     height 35px;
     text-indent -9999px;
